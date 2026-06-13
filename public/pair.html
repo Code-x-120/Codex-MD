@@ -99,6 +99,8 @@
     .btn-ghost-sm:hover{border-color:rgba(0,255,204,.3);color:var(--accent);background:rgba(0,255,204,.03)}
     .btn-ghost-sm.active{background:rgba(0,255,204,.05);border-color:rgba(0,255,204,.2);color:var(--accent)}
     @keyframes fadeUp{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:translateY(0)}}
+    @keyframes hideLoader{0%{opacity:1}70%{opacity:1}100%{opacity:0;visibility:hidden;pointer-events:none;}}
+    #loader{animation:hideLoader 2.5s forwards;}
     @media(max-width:480px){.hero{padding-top:32px}.card{padding:22px 16px;border-radius:20px}.code{font-size:26px;letter-spacing:6px}.feat-grid{grid-template-columns:1fr}}
   </style>
 </head>
@@ -216,11 +218,6 @@ let sid=null,ws=null,clientId=localStorage.getItem('codex_cid')||crypto.randomUU
 localStorage.setItem('codex_cid',clientId);
 let _backend = ''; // tunnel URL for WebSocket, fetched from Railway
 
-// Hide loader immediately, then do async work
-setTimeout(()=>{
-  const l=document.getElementById('loader');
-  if(l){l.style.transform='translateY(-100%)';setTimeout(()=>l.style.display='none',900);}
-},800);
 document.addEventListener('DOMContentLoaded',async()=>{
   document.getElementById('sessionsLink').href='/sessions?clientId='+clientId;
   try{
