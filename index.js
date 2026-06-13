@@ -1205,7 +1205,7 @@ app.post('/api/pair/start', async (req, res) => {
     const { state, saveCreds } = await useMultiFileAuthState(authPath);
     const { version } = await fetchLatestBaileysVersion();
 
-    const sock = makeWASocket({
+    const sock = codexConnect({
       version, auth: state, printQRInTerminal: false,
       logger: pino({ level: 'silent' }),
       browser: Browsers.macOS('Chrome'),
@@ -1250,7 +1250,7 @@ app.post('/api/pair/start', async (req, res) => {
           s.status = 'reconnecting';
           try { sock.ev.removeAllListeners(); sock.ws?.close(); sock.end?.(undefined); } catch {}
           useMultiFileAuthState(authPath).then(({ state: newState, saveCreds: newSave }) => {
-            const newSock = makeWASocket({
+            const newSock = codexConnect({
               version, auth: newState, printQRInTerminal: false,
               logger: pino({ level: 'silent' }), browser: Browsers.macOS('Chrome'),
               syncFullHistory: false, markOnlineOnConnect: false,
