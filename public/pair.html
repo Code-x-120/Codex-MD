@@ -216,9 +216,12 @@ let sid=null,ws=null,clientId=localStorage.getItem('codex_cid')||crypto.randomUU
 localStorage.setItem('codex_cid',clientId);
 let _backend = ''; // tunnel URL for WebSocket, fetched from Railway
 
-window.addEventListener('load',async()=>{
+// Hide loader immediately, then do async work
+setTimeout(()=>{
   const l=document.getElementById('loader');
-  setTimeout(()=>{l.style.transform='translateY(-100%)';setTimeout(()=>l.style.display='none',900)},1100);
+  if(l){l.style.transform='translateY(-100%)';setTimeout(()=>l.style.display='none',900);}
+},800);
+document.addEventListener('DOMContentLoaded',async()=>{
   document.getElementById('sessionsLink').href='/sessions?clientId='+clientId;
   try{
     const r=await fetch('/api/tunnel-url');
