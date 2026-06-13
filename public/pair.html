@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Codex-MD | Session Generator</title>
+  <meta name="description" content="Generate WhatsApp pairing sessions for Codex-MD bot." />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    :root{--primary:#6366f1;--accent:#00ffcc;--toxic:#ff3366;--bg:#030712;--glass:rgba(255,255,255,0.03);--border:rgba(255,255,255,0.07)}
+    *{margin:0;padding:0;box-sizing:border-box;font-family:'Plus Jakarta Sans',sans-serif;-webkit-tap-highlight-color:transparent}
+    body{background:var(--bg);color:#fff;min-height:100vh;overflow-x:hidden;display:flex;flex-direction:column;align-items:center}
+    #loader{position:fixed;inset:0;background:var(--bg);z-index:10000;display:flex;flex-direction:column;justify-content:center;align-items:center;transition:transform .9s cubic-bezier(.77,0,.175,1)}
+    .lc{position:relative;width:90px;height:90px}
+    .lc div{position:absolute;inset:0;border:2px solid transparent;border-top-color:var(--accent);border-radius:50%;animation:spin 1s linear infinite}
+    .lc div:nth-child(2){inset:12px;border-top-color:var(--toxic);animation-duration:1.6s}
+    .lt{margin-top:28px;font-size:9px;letter-spacing:6px;color:var(--accent);font-weight:800;text-transform:uppercase;animation:blink 1s infinite alternate}
+    @keyframes spin{to{transform:rotate(360deg)}}
+    @keyframes blink{from{opacity:.25}to{opacity:1}}
+    .bg{position:fixed;inset:0;z-index:0;
+      background:radial-gradient(circle at 15% 15%,rgba(99,102,241,.12) 0%,transparent 45%),
+                 radial-gradient(circle at 85% 85%,rgba(0,255,204,.06) 0%,transparent 45%),
+                 radial-gradient(circle at 50% 0%,rgba(255,51,102,.04) 0%,transparent 35%)}
+    .wrap{position:relative;z-index:1;width:100%;max-width:500px;padding:20px 16px 32px;display:flex;flex-direction:column;align-items:center;min-height:100vh}
+    .hero{text-align:center;padding:52px 0 28px;width:100%;animation:fadeUp .8s ease both}
+    .badge{display:inline-flex;align-items:center;gap:6px;padding:6px 16px;background:rgba(0,255,204,.05);border:1px solid rgba(0,255,204,.18);border-radius:100px;color:var(--accent);font-size:10px;font-weight:800;letter-spacing:2.5px;margin-bottom:16px}
+    .badge i{font-size:8px}
+    .hero h1{font-size:clamp(2.4rem,11vw,4rem);font-weight:800;letter-spacing:-2px;line-height:.92;margin-bottom:10px;background:linear-gradient(160deg,#fff 40%,rgba(255,255,255,.35));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+    .accent-word{-webkit-text-fill-color:var(--accent) !important}
+    .hero-sub{color:#334155;font-size:13px;font-weight:500;letter-spacing:.3px}
+    .card{width:100%;background:rgba(255,255,255,.025);border:1px solid var(--border);border-radius:26px;padding:28px 24px;backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);animation:fadeUp .8s ease .15s both;box-shadow:0 0 0 1px rgba(255,255,255,.03) inset}
+    .dots{display:flex;align-items:center;justify-content:center;gap:0;margin-bottom:26px}
+    .dot{width:28px;height:4px;border-radius:4px;background:rgba(255,255,255,.06);transition:all .4s ease}
+    .dot.active{background:var(--accent);box-shadow:0 0 10px rgba(0,255,204,.4);width:40px}
+    .dot.done{background:var(--primary)}
+    .dot-gap{width:6px}
+    .step{display:none}.step.active{display:block}
+    .sec-label{display:flex;align-items:center;gap:8px;margin-bottom:10px}
+    .sec-label .num{width:22px;height:22px;border-radius:6px;background:rgba(0,255,204,.08);border:1px solid rgba(0,255,204,.15);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;color:var(--accent)}
+    .sec-label .txt{font-size:11px;font-weight:700;color:#475569;text-transform:uppercase;letter-spacing:1.2px}
+    input{width:100%;padding:14px 18px;background:rgba(255,255,255,.025);border:1px solid var(--border);border-radius:13px;color:#fff;font-size:16px;font-family:'Plus Jakarta Sans',sans-serif;outline:none;transition:all .3s ease}
+    input:focus{border-color:rgba(0,255,204,.4);background:rgba(0,255,204,.02);box-shadow:0 0 0 3px rgba(0,255,204,.05)}
+    input::placeholder{color:#1e293b}
+    .btn{width:100%;padding:14px 20px;border:none;border-radius:13px;font-size:14px;font-weight:800;font-family:'Plus Jakarta Sans',sans-serif;cursor:pointer;transition:all .3s cubic-bezier(.23,1,.32,1);display:flex;align-items:center;justify-content:center;gap:9px;letter-spacing:.3px}
+    .btn-primary{background:linear-gradient(135deg,var(--accent),var(--primary));color:#000}
+    .btn-primary:hover:not(:disabled){transform:translateY(-2px);box-shadow:0 8px 28px rgba(0,255,204,.2)}
+    .btn-primary:disabled{opacity:.35;cursor:not-allowed}
+    .btn-success{background:linear-gradient(135deg,#00ff88,var(--accent));color:#000}
+    .btn-success:hover{transform:translateY(-2px);box-shadow:0 8px 28px rgba(0,255,136,.2)}
+    .btn-ghost{background:rgba(255,255,255,.03);border:1px solid var(--border);color:#64748b;font-weight:700}
+    .btn-ghost:hover{border-color:rgba(0,255,204,.3);color:#94a3b8;background:rgba(0,255,204,.03)}
+    .btn-accent-out{background:transparent;border:1px solid rgba(0,255,204,.2);color:var(--accent);font-weight:700}
+    .btn-accent-out:hover{background:rgba(0,255,204,.05);border-color:rgba(0,255,204,.4)}
+    .sp{width:17px;height:17px;border:2.5px solid rgba(0,0,0,.15);border-top-color:#000;border-radius:50%;animation:spin .65s linear infinite;flex-shrink:0}
+    .code-box{position:relative;background:rgba(0,255,204,.02);border:1.5px dashed rgba(0,255,204,.2);border-radius:18px;padding:22px 20px 18px;text-align:center;margin:14px 0;overflow:hidden}
+    .code-box::before{content:'';position:absolute;inset:0;background:radial-gradient(circle at 50% 0%,rgba(0,255,204,.06),transparent 60%);pointer-events:none}
+    .code{font-family:'Courier New',monospace;font-size:34px;font-weight:800;letter-spacing:10px;color:var(--accent);text-shadow:0 0 40px rgba(0,255,204,.5);position:relative}
+    .code-steps{display:flex;flex-direction:column;gap:5px;margin-top:14px}
+    .code-step{display:flex;align-items:center;gap:8px;font-size:11px;color:#334155;font-weight:600;text-align:left}
+    .code-step i{color:var(--accent);font-size:10px;flex-shrink:0;width:14px}
+    .code-step b{color:#64748b}
+    .status-bar{display:flex;align-items:center;gap:10px;padding:12px 16px;border-radius:11px;margin:12px 0;font-size:12px;font-weight:700;letter-spacing:.3px}
+    .status-bar.wait{background:rgba(251,191,36,.04);border:1px solid rgba(251,191,36,.1);color:#fbbf24}
+    .status-bar.ok{background:rgba(0,255,204,.04);border:1px solid rgba(0,255,204,.12);color:var(--accent)}
+    .status-bar .sp-y{width:15px;height:15px;border:2px solid rgba(251,191,36,.2);border-top-color:#fbbf24;border-radius:50%;animation:spin .7s linear infinite;flex-shrink:0}
+    textarea{width:100%;min-height:88px;padding:14px;background:rgba(255,255,255,.02);border:1px solid var(--border);border-radius:13px;color:#64748b;font-family:'Courier New',monospace;font-size:10.5px;line-height:1.6;resize:vertical;outline:none;transition:border-color .3s}
+    textarea:focus{border-color:rgba(0,255,204,.3)}
+    .info-box{background:rgba(99,102,241,.03);border:1px solid rgba(99,102,241,.1);border-radius:14px;padding:14px 16px;margin:14px 0}
+    .info-box .info-title{display:flex;align-items:center;gap:7px;font-size:11px;font-weight:800;color:var(--primary);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px}
+    .info-box p{font-size:12px;color:#334155;line-height:1.75;font-weight:500}
+    .info-box p b{color:#64748b;font-weight:700}
+    .how-steps{display:flex;flex-direction:column;gap:0;margin-top:12px}
+    .how-step{display:flex;align-items:flex-start;gap:10px;padding:8px 0;border-bottom:1px solid rgba(255,255,255,.04)}
+    .how-step:last-child{border-bottom:none}
+    .how-step .n{min-width:22px;height:22px;border-radius:7px;background:rgba(99,102,241,.1);border:1px solid rgba(99,102,241,.2);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:800;color:var(--primary);flex-shrink:0}
+    .how-step .t{font-size:12px;color:#475569;font-weight:600;line-height:1.5}
+    .how-step .t b{color:#64748b;font-weight:700}
+    .feat-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:14px}
+    .feat{background:rgba(255,255,255,.02);border:1px solid var(--border);border-radius:14px;padding:14px 12px;display:flex;flex-direction:column;align-items:center;text-align:center;gap:8px;transition:all .3s}
+    .feat:hover{border-color:rgba(0,255,204,.25);background:rgba(0,255,204,.02);transform:translateY(-2px)}
+    .feat .fi{width:38px;height:38px;border-radius:11px;background:rgba(99,102,241,.08);border:1px solid rgba(99,102,241,.14);display:flex;align-items:center;justify-content:center;font-size:16px;color:var(--accent);flex-shrink:0}
+    .feat .ft{font-size:12px;font-weight:800;color:#94a3b8}
+    .feat .fs{font-size:10px;color:#334155;font-weight:600}
+    .success-banner{background:rgba(0,255,204,.04);border:1px solid rgba(0,255,204,.12);border-radius:14px;padding:14px 16px;display:flex;align-items:center;gap:12px;margin-bottom:14px}
+    .success-banner .ic{width:36px;height:36px;border-radius:10px;background:rgba(0,255,204,.08);border:1px solid rgba(0,255,204,.15);display:flex;align-items:center;justify-content:center;font-size:16px;color:var(--accent);flex-shrink:0}
+    .success-banner .tx .t{font-size:13px;font-weight:800;color:var(--accent)}
+    .success-banner .tx .s{font-size:11px;color:#334155;font-weight:600;margin-top:2px}
+    .divider{display:flex;align-items:center;gap:10px;margin:14px 0}
+    .divider::before,.divider::after{content:'';flex:1;height:1px;background:var(--border)}
+    .divider span{font-size:10px;color:#1e293b;font-weight:700;letter-spacing:1px;white-space:nowrap}
+    .row{display:flex;gap:9px;margin-top:12px}.row .btn{flex:1}
+    .err{display:none;align-items:center;gap:6px;background:rgba(255,51,102,.05);border:1px solid rgba(255,51,102,.12);border-radius:9px;padding:9px 12px;margin-top:8px;font-size:12px;color:var(--toxic);font-weight:700}
+    .nav-btn{display:flex;align-items:center;justify-content:center;gap:8px;color:#94a3b8;font-size:13px;font-weight:700;text-decoration:none;padding:12px 20px;border:1px solid rgba(255,255,255,.12);border-radius:12px;margin-bottom:10px;transition:all .3s;letter-spacing:.5px;width:100%;background:rgba(255,255,255,.04)}
+    .nav-btn:hover{border-color:rgba(0,255,204,.4);color:var(--accent);background:rgba(0,255,204,.04)}
+    .footer{text-align:center;padding:8px 0 16px;font-size:10px;color:#0f172a;letter-spacing:1.5px;font-weight:700;text-transform:uppercase}
+    .footer a{color:var(--accent);text-decoration:none}
+    .btn-ghost-sm{background:rgba(255,255,255,.03);border:1px solid var(--border);color:#475569;font-size:11px;font-weight:700;padding:8px 16px;border-radius:100px;cursor:pointer;transition:all .3s;font-family:'Plus Jakarta Sans',sans-serif;display:inline-flex;align-items:center;gap:6px;letter-spacing:.5px}
+    .btn-ghost-sm:hover{border-color:rgba(0,255,204,.3);color:var(--accent);background:rgba(0,255,204,.03)}
+    .btn-ghost-sm.active{background:rgba(0,255,204,.05);border-color:rgba(0,255,204,.2);color:var(--accent)}
+    @keyframes fadeUp{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:translateY(0)}}
+    @media(max-width:480px){.hero{padding-top:32px}.card{padding:22px 16px;border-radius:20px}.code{font-size:26px;letter-spacing:6px}.feat-grid{grid-template-columns:1fr}}
+  </style>
+</head>
+<body>
+
+<div id="loader">
+  <div class="lc"><div></div><div></div></div>
+  <div class="lt">Establishing Uplink</div>
+</div>
+
+<div class="bg"></div>
+
+<div class="wrap">
+  <div class="hero">
+    <div class="badge"><i class="fas fa-circle-dot"></i> CODEXPAIR V2 · LIVE</div>
+    <h1>Codex<span class="accent-word">-MD</span></h1>
+    <p class="hero-sub">WhatsApp Session Generator &nbsp;·&nbsp; Any Panel</p>
+  </div>
+
+  <div style="text-align:center;margin-bottom:10px;animation:fadeUp .8s ease .3s both">
+    <span style="color:#334155;font-size:10px;font-weight:700;letter-spacing:.5px"><i class="fas fa-circle" style="color:var(--accent);font-size:6px"></i> <span id="tunnelStatus">Connecting...</span></span>
+  </div>
+
+  <div class="card">
+    <div class="dots">
+      <div class="dot active" id="d1"></div>
+      <div class="dot-gap"></div>
+      <div class="dot" id="d2"></div>
+      <div class="dot-gap"></div>
+      <div class="dot" id="d3"></div>
+    </div>
+
+    <div class="step active" id="s1">
+      <div class="sec-label"><div class="num">1</div><div class="txt">Enter Phone Number</div></div>
+      <input type="tel" id="phone" placeholder="Country code + number · e.g. 923001234567" autocomplete="tel" inputmode="numeric" />
+      <div class="err" id="err1"><i class="fas fa-triangle-exclamation"></i><span id="errMsg">Invalid number</span></div>
+      <button class="btn btn-primary" id="pairBtn" onclick="start()" style="margin-top:13px">
+        <i class="fas fa-bolt"></i> Generate Pairing Session
+      </button>
+
+      <div class="divider" style="margin-top:18px"><span>HOW IT WORKS</span></div>
+      <div class="how-steps">
+        <div class="how-step"><div class="n">1</div><div class="t">Enter your WhatsApp number with <b>country code</b></div></div>
+        <div class="how-step"><div class="n">2</div><div class="t">Get an <b>8-digit pairing code</b> — auto copied</div></div>
+        <div class="how-step"><div class="n">3</div><div class="t">Open WhatsApp → <b>Linked Devices</b> → enter the code</div></div>
+        <div class="how-step"><div class="n">4</div><div class="t">Download your <b>session file</b> and use on any panel</div></div>
+      </div>
+
+    </div>
+
+    <div class="step" id="s2">
+      <div class="sec-label"><div class="num">2</div><div class="txt">Enter Code on WhatsApp</div></div>
+      <div class="code-box">
+        <div class="code" id="codeDisplay">XXXX·XXXX</div>
+        <div class="code-steps">
+          <div class="code-step"><i class="fas fa-arrow-right"></i><span>Open <b>WhatsApp</b></span></div>
+          <div class="code-step"><i class="fas fa-arrow-right"></i><span>Tap <b>Linked Devices</b> → <b>Link a Device</b></span></div>
+          <div class="code-step"><i class="fas fa-arrow-right"></i><span>Choose <b>Pair with Phone Number</b> and enter code</span></div>
+        </div>
+      </div>
+      <button class="btn btn-accent-out" id="copyCodeBtn" onclick="copyCode()" style="margin-bottom:10px">
+        <i class="fas fa-copy"></i> Copy Code
+      </button>
+      <div class="status-bar wait">
+        <div class="sp-y"></div>
+        <span id="statusText">Waiting for WhatsApp confirmation…</span>
+      </div>
+      <div class="row" style="margin-top:8px">
+        <button class="btn btn-ghost" id="pauseBtn" onclick="togglePause()" style="flex:1">
+          <i class="fas fa-pause"></i> Pause
+        </button>
+        <button class="btn btn-ghost" onclick="stop()" style="flex:1">
+          <i class="fas fa-stop"></i> Stop
+        </button>
+        <button class="btn btn-ghost" onclick="reset()" style="flex:1">
+          <i class="fas fa-rotate-left"></i> Reset
+        </button>
+      </div>
+    </div>
+
+    <div class="step" id="s3">
+      <div class="success-banner">
+        <div class="ic"><i class="fas fa-shield-halved"></i></div>
+        <div class="tx">
+          <div class="t">Session Generated</div>
+          <div class="s">Your session is ready to use on any panel</div>
+        </div>
+      </div>
+      <div class="sec-label"><div class="num">3</div><div class="txt">Your Session String</div></div>
+      <textarea id="sessionOutput" readonly placeholder="Session loading..."></textarea>
+      <div class="row">
+        <button class="btn btn-primary" onclick="copy()"><i class="fas fa-copy"></i> Copy</button>
+        <button class="btn btn-success" onclick="dl()"><i class="fas fa-download"></i> Download</button>
+      </div>
+      <div class="info-box" style="margin-top:14px">
+        <div class="info-title"><i class="fas fa-circle-info"></i> Next Step</div>
+        <p>Paste this session string into your <b>bot panel's session field</b>. Your bot will connect to WhatsApp automatically.</p>
+      </div>
+      <button class="btn btn-ghost" onclick="reset()" style="margin-top:4px">
+        <i class="fas fa-rotate-left"></i> Generate Another Session
+      </button>
+    </div>
+  </div>
+
+  <a id="sessionsLink" href="/sessions" class="nav-btn" style="margin-top:16px">
+    <i class="fas fa-table-list"></i> My Sessions
+  </a>
+  <div class="footer">Powered by Codex-MD · v2</div>
+</div>
+
+
+
+<script>
+let sid=null,ws=null,clientId=localStorage.getItem('codex_cid')||crypto.randomUUID();
+localStorage.setItem('codex_cid',clientId);
+let _backend = ''; // tunnel URL for WebSocket, fetched from Railway
+
+window.addEventListener('load',async()=>{
+  const l=document.getElementById('loader');
+  setTimeout(()=>{l.style.transform='translateY(-100%)';setTimeout(()=>l.style.display='none',900)},1100);
+  document.getElementById('sessionsLink').href='/sessions?clientId='+clientId;
+  try{
+    const r=await fetch('/api/tunnel-url');
+    const d=await r.json();
+    if(d.url)_backend=d.url;
+  }catch(e){}
+  document.getElementById('tunnelStatus').textContent=_backend?'Tunnel connected':'Railway direct (pair embedded)';
+});
+
+function show(n){
+  document.querySelectorAll('.step').forEach(s=>s.classList.remove('active'));
+  document.getElementById('s'+n).classList.add('active');
+  ['d1','d2','d3'].forEach((id,i)=>{
+    const d=document.getElementById(id);
+    d.className='dot';
+    if(i+1<n)d.classList.add('done');
+    else if(i+1===n)d.classList.add('active');
+  });
+}
+
+let pollTimer = null;
+
+function startPolling(sid) {
+  if (pollTimer) clearInterval(pollTimer);
+  pollTimer = setInterval(async () => {
+    try {
+      const r = await fetch(`/api/pair/status/${sid}`);
+      const d = await r.json();
+      if (d.pairingCode && document.getElementById('codeDisplay').textContent === 'XXXX·XXXX') {
+        document.getElementById('codeDisplay').textContent = d.pairingCode;
+        document.getElementById('statusText').textContent = 'Waiting for WhatsApp confirmation…';
+        navigator.clipboard.writeText(d.pairingCode).then(() => {
+          const btn = document.getElementById('copyCodeBtn');
+          btn.innerHTML = '<i class="fas fa-check"></i> Auto Copied!';
+          btn.style.background = 'rgba(0,255,204,.06)';
+          setTimeout(() => { btn.innerHTML = '<i class="fas fa-copy"></i> Copy Code'; btn.style.background = ''; }, 3000);
+        }).catch(() => {});
+      }
+      if (d.status === 'connected' && d.sessionPackage) {
+        document.getElementById('sessionOutput').value = d.sessionPackage;
+        show(3);
+        if (pollTimer) { clearInterval(pollTimer); pollTimer = null; }
+      }
+      if (d.status === 'error') {
+        document.getElementById('codeDisplay').textContent = '—';
+        document.getElementById('statusText').textContent = d.error || 'Something went wrong. Try again.';
+        document.getElementById('statusText').style.color = '#ff3366';
+        if (pollTimer) { clearInterval(pollTimer); pollTimer = null; }
+      }
+    } catch (e) {}
+  }, 2000);
+}
+
+async function start(){
+  const inp=document.getElementById('phone'),
+        errEl=document.getElementById('err1'),
+        errMsg=document.getElementById('errMsg'),
+        btn=document.getElementById('pairBtn');
+  let n=inp.value.replace(/\D/g,'');
+  if(!n||n.length<7){errMsg.textContent='Please enter a valid number with country code';errEl.style.display='flex';return}
+  errEl.style.display='none';
+  btn.disabled=true;
+  btn.innerHTML='<div class="sp"></div> Connecting to WhatsApp…';
+  try{
+    const r=await fetch('/api/pair/start',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({number:n,clientId})});
+    const d=await r.json();
+    if(!r.ok)throw new Error(d.error||'Failed');
+    sid=d.sessionId;
+    show(2);
+    if (_backend) {
+      const wsBase = _backend.replace(/^http/, 'ws');
+      ws=new WebSocket(wsBase+'/ws?sessionId='+sid);
+      ws.onmessage=function(e){
+        try{
+          const msg=JSON.parse(e.data);
+          if(msg.type==='pairingCode'){
+            document.getElementById('codeDisplay').textContent=msg.code;
+            document.getElementById('statusText').textContent='Waiting for WhatsApp confirmation…';
+            navigator.clipboard.writeText(msg.code).then(()=>{
+              const btn=document.getElementById('copyCodeBtn');
+              btn.innerHTML='<i class="fas fa-check"></i> Auto Copied!';
+              btn.style.background='rgba(0,255,204,.06)';
+              setTimeout(()=>{btn.innerHTML='<i class="fas fa-copy"></i> Copy Code';btn.style.background=''},3000);
+            }).catch(()=>{});
+          }else if(msg.type==='connected'){
+            document.getElementById('sessionOutput').value=msg.session;
+            show(3);
+          }else if(msg.type==='error'){
+            document.getElementById('codeDisplay').textContent='—';
+            document.getElementById('statusText').textContent=msg.message||'Something went wrong. Try again.';
+            document.getElementById('statusText').style.color='#ff3366';
+          }else if(msg.type==='stopped'){
+            document.getElementById('codeDisplay').textContent='—';
+            document.getElementById('statusText').textContent='Session stopped.';
+            document.getElementById('statusText').style.color='#64748b';
+            const pb=document.getElementById('pauseBtn');
+            pb.innerHTML='<i class="fas fa-play"></i> Resume';
+          }else if(msg.type==='paused'){
+            document.getElementById('statusText').textContent='Session paused.';
+            document.getElementById('statusText').style.color='#fbbf24';
+            const pb=document.getElementById('pauseBtn');
+            pb.innerHTML='<i class="fas fa-play"></i> Resume';
+          }else if(msg.type==='status'){
+            document.getElementById('statusText').textContent=msg.text;
+          }
+        }catch(ex){}
+      };
+      ws.onclose=function(){
+        if(document.getElementById('s2').classList.contains('active')&&!document.getElementById('sessionOutput').value){
+          document.getElementById('statusText').textContent='Connection lost. Refresh and try again.';
+          document.getElementById('codeDisplay').textContent='—';
+        }
+      };
+      ws.onerror=function(){
+        document.getElementById('statusText').textContent='Connection error. Refresh the page.';
+      };
+    } else {
+      startPolling(sid);
+    }
+  }catch(e){
+    document.getElementById('errMsg').textContent=e.message||'Failed. Please try again.';
+    document.getElementById('err1').style.display='flex';
+    btn.disabled=false;
+    btn.innerHTML='<i class="fas fa-bolt"></i> Generate Pairing Session';
+  }
+}
+
+function copyCode(){
+  const code=document.getElementById('codeDisplay').textContent;
+  if(!code||code==='Fetching…'||code==='XXXX·XXXX'||code==='—')return;
+  navigator.clipboard.writeText(code).then(()=>{
+    const btn=document.getElementById('copyCodeBtn');
+    btn.innerHTML='<i class="fas fa-check"></i> Copied!';
+    setTimeout(()=>{btn.innerHTML='<i class="fas fa-copy"></i> Copy Code'},2500);
+  }).catch(()=>{
+    const t=document.createElement('textarea');t.value=code;document.body.appendChild(t);t.select();document.execCommand('copy');document.body.removeChild(t);
+  });
+}
+
+function togglePause(){
+  if(!ws||!sid)return;
+  const pb=document.getElementById('pauseBtn');
+  if(pb.innerHTML.includes('Pause')){
+    ws.send(JSON.stringify({ type: 'pause' }));
+    pb.innerHTML='<i class="fas fa-spinner fa-spin"></i>';
+  }else{
+    ws.send(JSON.stringify({ type: 'resume' }));
+    pb.innerHTML='<i class="fas fa-spinner fa-spin"></i>';
+    document.getElementById('statusText').style.color='';
+  }
+}
+
+function stop(){
+  if(pollTimer){clearInterval(pollTimer);pollTimer=null;}
+  if(ws) try { ws.send(JSON.stringify({ type: 'stop' })); } catch
+  document.getElementById('statusText').textContent='Stopping session...';
+}
+
+function reset(){
+  if(ws)try{ws.close()}catch{} ws=null; sid=null;
+  if(pollTimer){clearInterval(pollTimer);pollTimer=null;}
+  document.getElementById('phone').value='';
+  document.getElementById('pairBtn').disabled=false;
+  document.getElementById('pairBtn').innerHTML='<i class="fas fa-bolt"></i> Generate Pairing Session';
+  document.getElementById('err1').style.display='none';
+  document.getElementById('statusText').style.color='';
+  const pb=document.getElementById('pauseBtn');
+  pb.innerHTML='<i class="fas fa-pause"></i> Pause';
+  show(1);
+}
+
+function copy(){
+  const t=document.getElementById('sessionOutput');
+  t.select();
+  navigator.clipboard.writeText(t.value).catch(()=>document.execCommand('copy'));
+}
+
+function dl(){
+  const c=document.getElementById('sessionOutput').value;
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(new Blob([c],{type:'text/plain'}));
+  a.download='Codex-MD-Session.txt';
+  a.click();
+}
+
+document.getElementById('phone').addEventListener('keydown',e=>{if(e.key==='Enter')start()});
+</script>
+</body>
+</html>

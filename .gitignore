@@ -1,0 +1,7 @@
+node_modules/
+Session/
+temp_pair/
+store.json
+*.log
+.env
+.DS_Store

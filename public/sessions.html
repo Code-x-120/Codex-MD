@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Codex-MD | Sessions</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    :root{--primary:#6366f1;--accent:#00ffcc;--toxic:#ff3366;--bg:#030712;--glass:rgba(255,255,255,0.03);--border:rgba(255,255,255,0.07)}
+    *{margin:0;padding:0;box-sizing:border-box;font-family:'Plus Jakarta Sans',sans-serif;-webkit-tap-highlight-color:transparent}
+    body{background:var(--bg);color:#fff;min-height:100vh;overflow-x:hidden;display:flex;flex-direction:column;align-items:center}
+    .bg{position:fixed;inset:0;z-index:0;
+      background:radial-gradient(circle at 15% 15%,rgba(99,102,241,.1) 0%,transparent 45%),
+                 radial-gradient(circle at 85% 85%,rgba(0,255,204,.05) 0%,transparent 45%)}
+    .wrap{position:relative;z-index:1;width:100%;max-width:720px;padding:24px 16px 40px}
+    .topbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:28px;gap:12px}
+    .back{display:flex;align-items:center;gap:7px;color:#334155;font-size:12px;font-weight:700;text-decoration:none;padding:9px 14px;border:1px solid var(--border);border-radius:11px;transition:all .3s;letter-spacing:.3px;white-space:nowrap}
+    .back:hover{border-color:rgba(0,255,204,.3);color:var(--accent);background:rgba(0,255,204,.02)}
+    .title-wrap{display:flex;flex-direction:column;align-items:center}
+    .page-title{font-size:18px;font-weight:800;background:linear-gradient(to right,#fff,rgba(255,255,255,.5));-webkit-background-clip:text;-webkit-text-fill-color:transparent;display:flex;align-items:center;gap:8px}
+    .page-title i{-webkit-text-fill-color:var(--accent)}
+    .page-sub{font-size:10px;color:#1e293b;font-weight:700;letter-spacing:2px;text-transform:uppercase;margin-top:2px}
+    .ref-btn{display:flex;align-items:center;gap:7px;color:var(--accent);font-size:12px;font-weight:700;background:rgba(0,255,204,.04);border:1px solid rgba(0,255,204,.15);border-radius:11px;padding:9px 14px;cursor:pointer;transition:all .3s;white-space:nowrap}
+    .ref-btn:hover{background:rgba(0,255,204,.08);border-color:rgba(0,255,204,.3)}
+    @keyframes spin{to{transform:rotate(360deg)}}
+    .spin{animation:spin .7s linear infinite}
+    .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:20px}
+    .stat{background:rgba(255,255,255,.025);border:1px solid var(--border);border-radius:16px;padding:16px 12px;text-align:center;backdrop-filter:blur(10px)}
+    .stat .sv{font-size:26px;font-weight:800;line-height:1}
+    .stat .sl{font-size:9px;color:#334155;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;margin-top:5px}
+    .live-bar{display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:20px}
+    .live-dot{width:7px;height:7px;border-radius:50%;background:var(--accent);box-shadow:0 0 8px rgba(0,255,204,.6);animation:pulse-dot 2s infinite}
+    @keyframes pulse-dot{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.5;transform:scale(.7)}}
+    .live-text{font-size:10px;color:#334155;font-weight:700;letter-spacing:2px;text-transform:uppercase}
+    #list{display:flex;flex-direction:column;gap:12px}
+    .sc{background:rgba(255,255,255,.025);border:1px solid var(--border);border-radius:20px;padding:20px;backdrop-filter:blur(12px);transition:border-color .3s,box-shadow .3s}
+    .sc:hover{border-color:rgba(255,255,255,.12);box-shadow:0 4px 24px rgba(0,0,0,.3)}
+    .sc-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;gap:12px}
+    .sc-num{display:flex;align-items:center;gap:10px}
+    .sc-num .ico{width:38px;height:38px;border-radius:11px;background:rgba(99,102,241,.08);border:1px solid rgba(99,102,241,.15);display:flex;align-items:center;justify-content:center;font-size:15px;color:var(--primary);flex-shrink:0}
+    .sc-num .nv{font-size:17px;font-weight:800;color:#fff}
+    .sc-num .ns{font-size:10px;color:#1e293b;font-weight:700;letter-spacing:.5px;margin-top:1px}
+    .pill{display:inline-flex;align-items:center;gap:5px;padding:5px 12px;border-radius:100px;font-size:10px;font-weight:800;letter-spacing:.8px;text-transform:uppercase;white-space:nowrap}
+    .p-con{background:rgba(0,255,204,.06);border:1px solid rgba(0,255,204,.18);color:var(--accent)}
+    .p-wait{background:rgba(251,191,36,.06);border:1px solid rgba(251,191,36,.18);color:#fbbf24}
+    .p-conn{background:rgba(99,102,241,.06);border:1px solid rgba(99,102,241,.18);color:#818cf8}
+    .p-err{background:rgba(255,51,102,.06);border:1px solid rgba(255,51,102,.18);color:var(--toxic)}
+    .p-out{background:rgba(100,116,139,.06);border:1px solid rgba(100,116,139,.18);color:#64748b}
+    .sc-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+    .si{background:rgba(255,255,255,.015);border:1px solid rgba(255,255,255,.05);border-radius:11px;padding:10px 13px}
+    .si .sk{display:flex;align-items:center;gap:5px;font-size:9px;color:#1e293b;font-weight:800;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px}
+    .si .sk i{color:#334155;font-size:9px}
+    .si .sv{font-size:13px;font-weight:700;color:#475569;word-break:break-all;line-height:1.3}
+    .sv.c-green{color:var(--accent)}
+    .sv.c-red{color:var(--toxic)}
+    .sv.c-yellow{color:#fbbf24}
+    .sv.c-blue{color:#818cf8}
+    .sv.c-dim{color:#1e293b}
+    .code-disp{font-family:'Courier New',monospace;font-size:17px;font-weight:800;letter-spacing:5px;color:var(--accent);text-shadow:0 0 20px rgba(0,255,204,.35)}
+    .empty{text-align:center;padding:64px 24px;background:rgba(255,255,255,.015);border:1px solid var(--border);border-radius:20px}
+    .empty .ei{width:60px;height:60px;border-radius:16px;background:rgba(255,255,255,.02);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:22px;color:#1e293b;margin:0 auto 16px}
+    .empty h3{font-size:16px;font-weight:800;color:#1e293b;margin-bottom:6px}
+    .empty p{font-size:12px;color:#0f172a;font-weight:600;line-height:1.6}
+    .ts{text-align:center;font-size:10px;color:#0f172a;font-weight:700;letter-spacing:1.5px;margin-top:20px;text-transform:uppercase}
+    @media(max-width:540px){.stats{grid-template-columns:repeat(2,1fr)}.sc-grid{grid-template-columns:1fr}.topbar{flex-wrap:wrap}}
+  </style>
+</head>
+<body>
+<div class="bg"></div>
+<div class="wrap">
+
+  <div class="topbar">
+    <a href="/" class="back"><i class="fas fa-arrow-left"></i> Back</a>
+    <div class="title-wrap">
+      <div class="page-title"><i class="fas fa-satellite-dish"></i> Sessions</div>
+      <div class="page-sub">Live Monitor</div>
+    </div>
+    <button class="ref-btn" onclick="load()"><i class="fas fa-rotate-right" id="ri"></i> Refresh</button>
+  </div>
+
+  <div class="stats">
+    <div class="stat"><div class="sv" style="color:var(--accent)" id="sTotal">—</div><div class="sl">Total</div></div>
+    <div class="stat"><div class="sv" style="color:#00ff88" id="sConn">—</div><div class="sl">Connected</div></div>
+    <div class="stat"><div class="sv" style="color:#fbbf24" id="sWait">—</div><div class="sl">Waiting</div></div>
+    <div class="stat"><div class="sv" style="color:var(--toxic)" id="sErr">—</div><div class="sl">Error</div></div>
+  </div>
+
+  <div class="live-bar">
+    <div class="live-dot"></div>
+    <div class="live-text">Auto-refresh every 5s</div>
+  </div>
+
+  <div id="list"></div>
+  <div class="ts" id="ts"></div>
+</div>
+
+<script>
+function ago(s){
+  if(s<60)return s+'s ago';
+  if(s<3600)return Math.floor(s/60)+'m ago';
+  return Math.floor(s/3600)+'h ago';
+}
+function pillClass(st){
+  return{connected:'p-con',waiting:'p-wait',connecting:'p-conn',error:'p-err',logged_out:'p-out'}[st]||'p-out';
+}
+function pillIcon(st){
+  return{connected:'fa-circle-check',waiting:'fa-hourglass-half',connecting:'fa-spinner fa-spin',error:'fa-circle-xmark',logged_out:'fa-ban'}[st]||'fa-circle';
+}
+
+async function load(){
+  const ri=document.getElementById('ri');
+  ri.classList.add('spin');
+  try{
+    const cid=new URLSearchParams(location.search).get('clientId')||'';
+    const r=await fetch('/api/sessions?clientId='+cid);
+    const d=await r.json();
+
+    const conn=d.sessions.filter(s=>s.status==='connected').length;
+    const wait=d.sessions.filter(s=>s.status==='waiting').length;
+    const err=d.sessions.filter(s=>s.status==='error').length;
+    document.getElementById('sTotal').textContent=d.total;
+    document.getElementById('sConn').textContent=conn;
+    document.getElementById('sWait').textContent=wait;
+    document.getElementById('sErr').textContent=err;
+
+    const list=document.getElementById('list');
+    if(!d.sessions.length){
+      list.innerHTML=`<div class="empty">
+        <div class="ei"><i class="fas fa-inbox"></i></div>
+        <h3>No Active Sessions</h3>
+        <p>No pairing sessions are currently in memory.<br>Go back and generate one.</p>
+      </div>`;
+    } else {
+      list.innerHTML=d.sessions.map(s=>{
+        const code=s.pairingCode
+          ?`<div class="code-disp">${s.pairingCode}</div>`
+          :`<div class="sv c-dim">— Not issued</div>`;
+        const file=s.hasSession
+          ?`<div class="sv c-green"><i class="fas fa-check" style="margin-right:4px"></i>Available</div>`
+          :`<div class="sv c-dim"><i class="fas fa-xmark" style="margin-right:4px"></i>Pending</div>`;
+        const errTxt=s.error
+          ?`<div class="sv c-red" style="font-size:11px">${s.error.slice(0,48)}${s.error.length>48?'…':''}</div>`
+          :`<div class="sv c-green"><i class="fas fa-check" style="margin-right:4px"></i>None</div>`;
+        return `<div class="sc">
+          <div class="sc-head">
+            <div class="sc-num">
+              <div class="ico"><i class="fab fa-whatsapp"></i></div>
+              <div>
+                <div class="nv">+${s.number}</div>
+                <div class="ns">${ago(s.ageSeconds)} · ${s.ageSeconds}s session</div>
+              </div>
+            </div>
+            <span class="pill ${pillClass(s.status)}"><i class="fas ${pillIcon(s.status)}"></i> ${s.status}</span>
+          </div>
+          <div class="sc-grid">
+            <div class="si"><div class="sk"><i class="fas fa-key"></i> Pairing Code</div>${code}</div>
+            <div class="si"><div class="sk"><i class="fas fa-file-shield"></i> Session File</div>${file}</div>
+            <div class="si"><div class="sk"><i class="fas fa-stopwatch"></i> Age</div><div class="sv c-blue">${s.ageSeconds}s</div></div>
+            <div class="si"><div class="sk"><i class="fas fa-triangle-exclamation"></i> Error</div>${errTxt}</div>
+          </div>
+        </div>`;
+      }).join('');
+    }
+    document.getElementById('ts').textContent='Last updated · '+new Date().toLocaleTimeString();
+  } catch(e){
+    document.getElementById('list').innerHTML=`<div class="empty">
+      <div class="ei"><i class="fas fa-wifi"></i></div>
+      <h3>Connection Error</h3>
+      <p>Could not fetch session data. Check server status.</p>
+    </div>`;
+  }
+  ri.classList.remove('spin');
+}
+
+load();
+setInterval(load,5000);
+</script>
+</body>
+</html>
